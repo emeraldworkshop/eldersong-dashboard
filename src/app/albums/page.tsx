@@ -30,7 +30,13 @@ export default function page() {
                 {albums.map((album) => (
                     <li
                         key={album.id}
-                        className="flex items-start gap-4 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
+                        className="flex items-start gap-4 p-4 cursor-pointer border-b border-gray-200"
+                        onClick={() => {
+                            const slug = slugify(album.name);
+                            const fullSlug = `${slug}-${album.id}`;
+                            router.push(`/albums/${fullSlug}`);
+                        }
+                        }
                     >
                         {album?.album_song[0]?.songs?.coverUrl ? (
                             <img

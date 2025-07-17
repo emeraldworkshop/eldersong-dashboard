@@ -8,6 +8,8 @@ export default function page() {
   const params = useParams();
   const [song, setSong] = React.useState<any>(null);
 
+  console.log('Params:', song);
+
   useEffect(() => {
     (async () => {
       const slug = Array.isArray(params) ? params[0] : params;
@@ -44,7 +46,7 @@ export default function page() {
 
       {/* Audio Player */}
       <audio controls className="w-full rounded">
-        <source src={song?.audioUrl} type="audio/mpeg" />
+        <source src={song?.musicUrl} type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
     </div>

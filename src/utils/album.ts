@@ -94,3 +94,15 @@ export async function updateAlbum(
 
     return { success: true, message: 'Album updated successfully!' };
 }
+
+export async function deleteAlbumById(
+    albumId: number
+): Promise<{ success: boolean; message: string }> {
+    const { error } = await supabase.from('albums').delete().eq('id', albumId);
+
+    if (error) {
+        return { success: false, message: error.message };
+    }
+
+    return { success: true, message: 'Album deleted successfully.' };
+}

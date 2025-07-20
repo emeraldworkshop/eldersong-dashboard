@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchAlbumById } from '@/services/musicService';
+import { deleteAlbumById } from '@/utils/album';
 import SongCardList from '@/components/SongCardList';
-import { slugify } from '@/utils/createSlug'; // ✅ required for proper URL formatting  
+import { slugify } from '@/utils/createSlug';
 
 export default function AlbumDetailPage() {
     const params = useParams();
@@ -16,29 +17,45 @@ export default function AlbumDetailPage() {
 
     useEffect(() => {
         (async () => {
-            // Extract ID from slug
-            const slug = Array.isArray(params) ? params[0] : params;
-            const slugStr = slug?.id ?? slug;
-            const id = typeof slugStr === 'string' ? slugStr.split('-').pop() : undefined;
-            const numericId = Number(id);
+            const slugParam = params?.id;
+            const slugStr = typeof slugParam === 'string' ? slugParam : Array.isArray(slugParam) ? slugParam[0] : '';
+            const idStr = slugStr?.split('-').pop();
+            const id = Number(idStr);
 
-            if (!numericId) {
+            if (!id) {
                 setLoading(false);
                 return;
             }
 
-            setAlbumId(numericId);
+            setAlbumId(id);
 
             try {
-                const albumObj = await fetchAlbumById(numericId);
+                const albumObj = await fetchAlbumById(id);
                 setAlbum(albumObj);
             } catch (err) {
+                console.error('Failed to fetch album', err);
                 setAlbum(null);
             } finally {
                 setLoading(false);
             }
         })();
     }, [params]);
+
+    const handleDelete = async () => {
+        if (!albumId || !album?.name) return;
+
+        const confirmDelete = confirm(`Are you sure you want to delete "${album.name}"?`);
+        if (!confirmDelete) return;
+
+        const result = await deleteAlbumById(albumId);
+
+        if (result.success) {
+            // Redirect to albums list
+            router.push('/albums');
+        } else {
+            alert(`❌ Failed to delete: ${result.message}`);
+        }
+    };
 
     if (loading) {
         return (
@@ -56,13 +73,8 @@ export default function AlbumDetailPage() {
         );
     }
 
-    const songs = album.album_song
-        ? album.album_song.map((songRel: any) => songRel.songs)
-        : [];
-
+    const songs = album.album_song ? album.album_song.map((songRel: any) => songRel.songs) : [];
     const albumSlug = `${slugify(album.name)}-${album.id}`;
-
-    
 
     return (
         <main className="min-h-screen bg-gray-100 py-10 px-4">
@@ -94,18 +106,26 @@ export default function AlbumDetailPage() {
                                 ← Back to Albums
                             </button>
 
-                            {/* ✅ Edit Album Button */}
+                            {/* Edit */}
                             <button
                                 className="bg-blue-600 text-white px-5 py-1.5 rounded hover:bg-blue-700 text-sm font-semibold transition"
                                 onClick={() => router.push(`/albums/${albumSlug}/edit`)}
                             >
                                 ✏️ Edit Album
                             </button>
+
+                            {/* 🔴 Delete Button */}
+                            <button
+                                className="bg-red-600 text-white px-5 py-1.5 rounded hover:bg-red-700 text-sm font-semibold transition"
+                                onClick={handleDelete}
+                            >
+                                🗑️ Delete
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Song List */}
+                {/* Songs List */}
                 <section className="px-8 pb-8">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Songs in this album</h2>
                     {songs.length === 0 ? (

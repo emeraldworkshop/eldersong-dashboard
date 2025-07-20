@@ -11,6 +11,16 @@ export default function LoginPage() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const session = getStoredSession();
+
+        if (!session) {
+            router.push('/login'); // 🔒 Redirect to login if not authenticated
+        } else {
+            router.push('/') // ✅ Show content
+        }
+    }, [router]);
+
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();

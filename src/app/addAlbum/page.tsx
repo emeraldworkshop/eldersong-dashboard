@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createAlbum } from '@/utils/album';
 
 export default function AddAlbum() {
+    const router = useRouter(); // ✅ for navigation
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -29,6 +31,11 @@ export default function AddAlbum() {
                 setName('');
                 setDescription('');
                 setCoverFile(null);
+
+                // ✅ Redirect to all albums after short delay (optional)
+                setTimeout(() => {
+                    router.push('/albums');
+                }, 1000); // 1 second delay for confirmation message
             } else {
                 setMessage(`❌ ${result.message}`);
             }
@@ -46,7 +53,18 @@ export default function AddAlbum() {
                 onSubmit={handleUpload}
                 className="w-full max-w-lg bg-white p-8 rounded-lg shadow space-y-6"
             >
-                <h2 className="text-2xl font-bold text-gray-800">Create New Album</h2>
+                <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-800">Create New Album</h2>
+
+                    {/* ✅ Manual "Back to Albums" button */}
+                    <button
+                        type="button"
+                        onClick={() => router.push('/albums')}
+                        className="text-sm text-blue-600 hover:underline"
+                    >
+                        ← Back to Albums
+                    </button>
+                </div>
 
                 {/* Name */}
                 <div>
@@ -69,7 +87,7 @@ export default function AddAlbum() {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={3}
-                        placeholder="Add a short description (optional)"
+                        placeholder="Album description (optional)"
                     />
                 </div>
 
@@ -99,7 +117,9 @@ export default function AddAlbum() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-3 rounded text-white font-semibold ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                    className={`w-full py-3 rounded text-white font-semibold ${loading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
                         }`}
                 >
                     {loading ? 'Creating...' : 'Create Album'}

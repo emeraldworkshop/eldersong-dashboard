@@ -25,58 +25,58 @@ const SongCardList: React.FC<Props> = ({
   song: item,
   type = 'default',
   onPress,
-  onDelete = () => {},
+  onDelete = () => { },
 }) => {
-  const handleEllipsisClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent parent onClick
-    const confirmed = confirm(`Are you sure you want to delete "${item?.title}"?`);
-    if (confirmed) {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent triggering onPress
+    const confirmDelete = confirm(`Delete "${item?.title}"?`);
+    if (confirmDelete) {
       onDelete(item!);
     }
   };
 
   return (
     <div
-      className="w-full h-[60px] flex items-center bg-gray-600 rounded-md mb-2 transition-colors cursor-pointer hover:bg-gray-500"
+      className="flex items-center justify-between bg-white rounded-lg shadow-sm hover:shadow-md transition p-3 cursor-pointer"
       onClick={onPress}
     >
-      {type === 'default' ? (
-        <div className="relative w-[60px] h-[60px] flex-shrink-0">
+      {/* Left: Cover / Icon */}
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-md overflow-hidden bg-gray-100 border">
           {item?.coverUrl ? (
             <Image
               src={item.coverUrl}
-              alt={item.title || 'Song Cover'}
-              className="object-cover rounded-sm w-full h-full"
-              width={60}
-              height={60}
+              alt={item.title || 'Cover'}
+              width={56}
+              height={56}
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-300 rounded-sm" />
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <FaMusic size={24} />
+            </div>
           )}
         </div>
-      ) : (
-        <div className="w-10 h-10 flex items-center justify-center ml-2">
-          <FaMusic size={24} color="#999" />
-        </div>
-      )}
 
-      <div className="flex flex-1 justify-between ml-4">
-        <div className="w-[215px] flex flex-col overflow-hidden">
-          <span className="font-bold text-sm truncate">{item?.title}</span>
-          <span className="text-gray-400 text-sm -mt-1 truncate">
-            {typeof item?.artist === 'object' ? item?.artist?.name : item?.artist}
-          </span>
+        {/* Text Content */}
+        <div className="flex flex-col max-w-[200px] sm:max-w-[300px]">
+          <h3 className="font-semibold text-gray-800 text-sm truncate">{item?.title}</h3>
+          <p className="text-sm text-gray-500 truncate -mt-1">
+            {typeof item?.artist === 'object' ? item.artist?.name : item?.artist}
+          </p>
         </div>
-
-        {type === 'default' && (
-          <div
-            className="w-10 h-10 flex items-center justify-center hover:bg-gray-200 rounded-full"
-            onClick={handleEllipsisClick}
-          >
-            <FaEllipsisV size={20} color="#333" />
-          </div>
-        )}
       </div>
+
+      {/* Right: Ellipsis Button */}
+      {type === 'default' && (
+        <button
+          onClick={handleDelete}
+          className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition"
+          title="Delete Song"
+        >
+          <FaEllipsisV size={18} />
+        </button>
+      )}
     </div>
   );
 };

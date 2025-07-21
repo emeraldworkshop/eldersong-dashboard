@@ -7,9 +7,10 @@ import { useRouter } from 'next/navigation';
 import { slugify } from '@/utils/createSlug';
 import { deleteSong } from '@/utils/deleteSong';
 
-export default function page() {
+export default function AllSongsPage() {
   const router = useRouter();
   const [songs, setSongs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleDelete = async (song: any) => {
     const confirmDelete = confirm(`Are you sure you want to delete "${song.title}"?`);
@@ -19,58 +20,65 @@ export default function page() {
 
     if (res.success) {
       setSongs((prev) => prev.filter((s) => s.id !== song.id));
-      if (res.warnings) {
+      if (res.warnings?.length) {
         alert('Song deleted, but some storage files were not removed:\n' + res.warnings.join('\n'));
       } else {
-        alert('Song deleted successfully.');
+        alert('✅ Song deleted successfully.');
       }
     } else {
-      alert('Failed to delete song. Check console.');
+      alert('❌ Failed to delete song. Check console.');
     }
   };
 
   useEffect(() => {
-    //show the loading component here later ---
     (async () => {
       const songList = await fetchAllSongs();
       if (songList && songList.length > 0) {
         console.log('Fetched songs:', songList);
         setSongs(songList);
-
-        //remove the loading component here later
       }
+      setLoading(false);
     })();
   }, []);
 
-
   return (
-    <div>
-      <section className='max-w-5xl mx-auto p-8 flex justify-between items-center *:flex-col md:flex-row'>
-        <h1 className="text-2xl font-bold mb-4">All Songs</h1>
-
+    <main className="min-h-screen bg-gray-100 py-10 px-4">
+      {/* Header */}
+      <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">🎶 All Songs</h1>
         <button
           onClick={() => router.push('/addSong')}
           type="button"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition"
         >
-          Add Song
+          ➕ Add Song
         </button>
-      </section>
-      <ul className="space-y-4">
-        {songs.map((song) => (
-          <SongCardList
-            key={song.id}
-            song={song}
-            onPress={() => {
-              const slug = slugify(song.title);
-              const fullSlug = `${slug}-${song.id}`;
-              router.push(`/songs/${fullSlug}`);
-            }}
-            type="default"
-            onDelete={handleDelete}
-          />
-        ))}
-      </ul>
-    </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-5xl mx-auto">
+        {loading ? (
+          <p className="text-center text-gray-400 py-16">Loading songs...</p>
+        ) : songs.length === 0 ? (
+          <p className="text-center text-gray-400 py-16">No songs found.</p>
+        ) : (
+          <ul className="space-y-4">
+            {songs.map((song) => (
+              <SongCardList
+                key={song.id}
+                song={song}
+                onPress={() => {
+                  const slug = slugify(song.title);
+                  const fullSlug = `${slug}-${song.id}`;
+                  router.push(`/songs/${fullSlug}`);
+                }}
+                onDelete={handleDelete}
+                type="default"
+              />
+            ))}
+          </ul>
+        )}
+      </div>
+    </main>
   );
 }

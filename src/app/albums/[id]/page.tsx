@@ -18,8 +18,14 @@ export default function AlbumDetailPage() {
     useEffect(() => {
         (async () => {
             const slugParam = params?.id;
-            const slugStr = typeof slugParam === 'string' ? slugParam : Array.isArray(slugParam) ? slugParam[0] : '';
-            const idStr = slugStr?.split('-').pop();
+
+            if (!slugParam || typeof slugParam !== 'string') {
+                console.warn('Slug not found in route.');
+                setLoading(false);
+                return;
+            }
+
+            const idStr = slugParam.split('-').pop();
             const id = Number(idStr);
 
             if (!id) {

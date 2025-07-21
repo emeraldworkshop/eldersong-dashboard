@@ -35,12 +35,12 @@ export default function AddSong() {
 
     const handleUpload = async (e: any) => {
         e.preventDefault();
+
         if (!songFile || !coverFile) {
             alert('Please select both a song and a cover file.');
             return;
         }
 
-        // Upload song
         const res = await addSong({
             title,
             artist,
@@ -49,8 +49,21 @@ export default function AddSong() {
             albumIds: selectedAlbumIds,
         });
 
-        console.log('Song added:', res);
+        if (res.success) {
+            alert('✅ Song added successfully');
+            // Reset form
+            setTitle('');
+            setArtist('');
+            setSongFile(null);
+            setCoverFile(null);
+            setSelectedAlbumIds([]);
+            router.push('/songs'); // Optional: navigate to all songs
+        } else {
+            alert('❌ Failed to upload song. Check console.');
+            console.error(res.error);
+        }
     };
+
 
     return (
         <main className="min-h-screen bg-gray-100 py-10 px-4">
@@ -58,7 +71,7 @@ export default function AddSong() {
             <div className="max-w-xl mx-auto flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800">🎵 Add New Song</h2>
                 <button
-                    onClick={() => router.push('/songs')}
+                    onClick={() => router.back()}
                     // OR use router.push('/songs') if using `useRouter()`
                     className="text-sm text-blue-600 hover:underline font-semibold"
                 >
@@ -70,12 +83,7 @@ export default function AddSong() {
             <form
                 onSubmit={handleUpload}
                 className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow space-y-6"
-            ></form>
-            <form
-                onSubmit={handleUpload}
-                className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow space-y-6"
             >
-                <h2 className="text-3xl font-bold text-gray-800">🎵 Add New Song</h2>
 
                 {/* Song Title */}
                 <div>

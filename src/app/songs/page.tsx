@@ -73,6 +73,9 @@ export default function AllSongsPage() {
                   router.push(`/songs/${fullSlug}`);
                 }}
                 onDelete={handleDelete}
+                onEdit={(s) =>
+                  router.push(`/songs/${slugify(s.title)}-${s.id}/edit`)
+                }
                 type="default"
               />
             ))}

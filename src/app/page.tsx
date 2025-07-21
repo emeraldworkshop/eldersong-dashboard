@@ -7,19 +7,19 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true); // loading state while checking auth
+  const [isLoading, setIsLoading] = useState(false); // loading state while checking auth
 
   useEffect(() => {
-    const session = getStoredSession();
+    // const session = getStoredSession();
 
-    if (!session) {
-      router.push('/login'); // 🔒 Redirect to login if not authenticated
-    } else {
-      setIsLoading(false); // ✅ Show content
-    }
+    // if (!session) {
+    //   router.push('/login'); // 🔒 Redirect to login if not authenticated
+    // } else {
+    //   setIsLoading(false); // ✅ Show content
+    // }
   }, [router]);
 
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">

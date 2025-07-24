@@ -1,30 +1,19 @@
 import { supabase as supabaseAdmin } from './../lib/supabase';
 
-/**
- * Fetch all users (paginated, or all if small)
- */
-export async function fetchAllUsers() {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers(); // List all users
+export const fetchAllUsers = async () => {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+    if (error) throw error;
 
-    if (error) {
-        console.error('fetchAllUsers error:', error);
-        throw error;
-    }
-
-    return data.users; // array of users
+    return data;
 }
 
-/**
- * Fetch user by id
- */
-export async function fetchUserById(id: string) {
+
+export const fetchUserById = async (id: string) => {
     const { data, error } = await supabaseAdmin.auth.admin.getUserById(id);
-    if (error) {
-        console.error('fetchUserById error:', error);
-        throw error;
-    }
-    return data.user;
-}
+    if (error) throw error;
+    return data;
+};
+
 
 /**
  * Create a new user with email and random temp password (secure)

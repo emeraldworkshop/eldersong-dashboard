@@ -98,11 +98,50 @@ export async function updateAlbum(
 export async function deleteAlbumById(
     albumId: number
 ): Promise<{ success: boolean; message: string }> {
-    const { error } = await supabase.from('albums').delete().eq('id', albumId);
+    try {
+        // 1. Fetch album to get cover image path (if any)
+        const { data: album, error: fetchError } = await supabase
+            .from('albums')
+            .select('id, "cover-image"')
+            .eq('id', albumId)
+            .single();
+        if (fetchError) return { success: false, message: fetchError.message };
+        if (!album) return { success: false, message: 'Album not found' };
 
-    if (error) {
-        return { success: false, message: error.message };
+        // 2. Delete from album_song pivot table
+        const { error: pivotError } = await supabase
+            .from('album_song')
+            .delete()
+            .eq('albumid', albumId);
+        if (pivotError) return { success: false, message: pivotError.message };
+
+        // 3. Delete album record
+        const { error: albumDeleteError } = await supabase
+            .from('albums')
+            .delete()
+            .eq('id', albumId);
+        if (albumDeleteError)
+            return { success: false, message: albumDeleteError.message };
+
+        // 4. Remove cover image file from storage (optional)
+        if (album['cover-image']) {
+            const { error: storageError } = await supabase.storage
+                .from('music-images')
+                .remove([album['cover-image']]);
+            if (storageError) {
+                // Log but ignore error so album deletion still considered success
+                console.error(
+                    'Error deleting album cover image:',
+                    storageError.message
+                );
+            }
+        }
+
+        return {
+            success: true,
+            message: 'Album and related data deleted successfully.',
+        };
+    } catch (err) {
+        return { success: false, message: (err as Error).message };
     }
-
-    return { success: true, message: 'Album deleted successfully.' };
 }

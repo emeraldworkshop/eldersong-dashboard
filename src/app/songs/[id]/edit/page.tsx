@@ -17,6 +17,9 @@ export default function EditSongPage() {
     const [songId, setSongId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Utility to normalize all IDs as strings
+    const normalizeId = (id: string | number) => id.toString();
+
     useEffect(() => {
         const loadSong = async () => {
             const slugParam = params?.slug || params?.id;
@@ -30,18 +33,21 @@ export default function EditSongPage() {
             // 1. Fetch song details
             const song = await fetchSongById(id);
             if (song) {
-                setTitle(song.title);
-                setArtist(typeof song.artist === 'object' ? song.artist.name : song.artist);
+                setTitle(song.title || '');
+                setArtist(typeof song.artist === 'object' ? song.artist.name : song.artist || '');
 
-                // Convert album IDs to string
-                if (song.albums) {
-                    setSelectedAlbumIds(song.albums.map((a: any) => a.id.toString()));
-                }
+                const linkedAlbumIds = (song.albums || []).map((a: any) => normalizeId(a.id));
+                setSelectedAlbumIds(linkedAlbumIds);
             }
 
             // 2. Fetch all albums
-            const { data, error } = await supabase.from('albums').select('id, name');
-            if (!error) setAlbums(data || []);
+            const { data, error } = await supabase
+                .from('albums')
+                .select('id, name');
+
+            if (!error) {
+                setAlbums(data || []);
+            }
 
             setLoading(false);
         };
@@ -51,7 +57,9 @@ export default function EditSongPage() {
 
     const toggleAlbum = (id: string) => {
         setSelectedAlbumIds((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+            prev.includes(id)
+                ? prev.filter((albumId) => albumId !== id)
+                : [...prev.filter((id, i, a) => a.indexOf(id) === i), id] // de-duplicate
         );
     };
 
@@ -68,7 +76,7 @@ export default function EditSongPage() {
 
         if (res.success) {
             alert('✅ Song updated!');
-            router.back();
+            router.push('/songs');
         } else {
             alert('❌ Error updating song.');
         }
@@ -77,7 +85,7 @@ export default function EditSongPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-500 text-lg">
-                Loading song data...
+                Loading song...
             </div>
         );
     }
@@ -90,7 +98,7 @@ export default function EditSongPage() {
             >
                 <h2 className="text-2xl font-bold text-gray-800">Edit Song</h2>
 
-                {/* Song Title */}
+                {/* Title */}
                 <div>
                     <label className="block text-gray-700 font-medium mb-1">Title</label>
                     <input
@@ -117,25 +125,31 @@ export default function EditSongPage() {
                 {/* Albums */}
                 <div>
                     <label className="block text-gray-700 font-medium mb-2">Albums</label>
-                    <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-                        {albums.map((album) => (
-                            <label key={album.id} className="flex items-center gap-2 text-sm text-gray-800">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedAlbumIds.includes(album.id.toString())}
-                                    onChange={() => toggleAlbum(album.id.toString())}
-                                />
-                                {album.name}
-                            </label>
-                        ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {albums.map((album) => {
+                            const albumId = normalizeId(album.id);
+                            return (
+                                <label
+                                    key={albumId}
+                                    className="flex items-center gap-2 text-sm text-gray-800"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedAlbumIds.includes(albumId)}
+                                        onChange={() => toggleAlbum(albumId)}
+                                    />
+                                    {album.name}
+                                </label>
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Buttons */}
+                {/* Actions */}
                 <div className="flex gap-4">
                     <button
                         type="submit"
-                        className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                     >
                         Save Changes
                     </button>

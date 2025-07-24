@@ -5,7 +5,7 @@ import { fetchAllSongs } from '@/services/musicService';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { slugify } from '@/utils/createSlug';
-import { deleteSong } from '@/utils/deleteSong';
+import { deleteSong } from '@/utils/song';
 
 export default function AllSongsPage() {
   const router = useRouter();

@@ -56,6 +56,7 @@ export default function AlbumDetailPage() {
         const result = await deleteAlbumById(albumId);
 
         if (result.success) {
+            alert(`✅ Album successfully deleted: ${result.message}`);
             // Redirect to albums list
             router.push('/albums');
         } else {

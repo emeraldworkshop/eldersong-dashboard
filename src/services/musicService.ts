@@ -109,6 +109,7 @@ export const fetchAlbumById = async (albumId: any): Promise<Album | null> => {
         id,
         name,
         description,
+        cover-image,
         album_song (
           songid,
           songs (
@@ -129,6 +130,8 @@ export const fetchAlbumById = async (albumId: any): Promise<Album | null> => {
       id: data.id,
       name: data.name,
       description: data.description,
+      "cover-image": data['cover-image'],
+      "cover_url":getPublicUrl('music-images',data['cover-image']),
       album_song: data.album_song.map((songEntry) => {
         const baseSong = Array.isArray(songEntry.songs)
           ? songEntry.songs[0]

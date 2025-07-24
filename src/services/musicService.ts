@@ -154,7 +154,7 @@ export const fetchAlbumById = async (albumId: any): Promise<Album | null> => {
   }
 };
 
-export const fetchSongById = async (songId: number): Promise<Song | null> => {
+export const fetchSongById = async (songId: any): Promise<Song | null> => {
   try {
     const { data, error } = await supabase
       .from('songs')

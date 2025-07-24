@@ -34,10 +34,24 @@ export default function EditSongPage() {
             const song = await fetchSongById(id);
             if (song) {
                 setTitle(song.title || '');
-                setArtist(typeof song.artist === 'object' ? song.artist.name : song.artist || '');
+                setArtist(song.artist || '');
 
-                const linkedAlbumIds = (song.albums || []).map((a: any) => normalizeId(a.id));
-                setSelectedAlbumIds(linkedAlbumIds);
+                const { data: linkedAlbums, error } = await supabase
+                    .from('album_song')
+                    .select('albumid')
+                    .eq('songid', id);
+
+                if (error) {
+                    console.error('Error fetching linked albums:', error);
+                    // handle error or set empty list
+                    setSelectedAlbumIds([]);
+                } else {
+                    // Map album IDs (convert to string if needed)
+                    const albumIds = linkedAlbums?.map(rel => rel.albumid.toString()) || [];
+
+                    console.log('Linked album IDs:', albumIds);
+                    setSelectedAlbumIds(albumIds);
+                }
             }
 
             // 2. Fetch all albums
@@ -76,7 +90,7 @@ export default function EditSongPage() {
 
         if (res.success) {
             alert('✅ Song updated!');
-            router.push('/songs');
+            router.back();
         } else {
             alert('❌ Error updating song.');
         }

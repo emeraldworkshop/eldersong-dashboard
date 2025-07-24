@@ -147,10 +147,10 @@ export async function updateSong({
   id,
   title,
   artist,
-  albums = [],
+  albums = [], // albums selected in UI, e.g., ['2', '3']
 }: UpdateSongOptions) {
   try {
-    // 1. Update title/artist if provided
+    // 1. Update title and artist if provided
     const updates: Record<string, any> = {};
     if (title) updates.title = title;
     if (artist) updates.artist = artist;
@@ -164,26 +164,45 @@ export async function updateSong({
       if (updateError) throw updateError;
     }
 
-    // 2. Re-link albums if provided
-    if (albums.length) {
-      // Remove old album links
-      const { error: unlinkError } = await supabase
+    // 2. Fetch current linked album IDs from album_song
+    const { data: existingLinks, error: fetchError } = await supabase
+      .from('album_song')
+      .select('albumid')
+      .eq('songid', id);
+
+    if (fetchError) throw fetchError;
+
+    const existingAlbumIds = existingLinks?.map(link => link.albumid.toString()) || [];
+
+    // Normalize all IDs to strings for comparison
+    const selectedAlbumIds = albums.map(a => a.toString());
+
+    // 3. Determine albums to delete (linked but not selected)
+    const albumsToDelete = existingAlbumIds.filter(albumId => !selectedAlbumIds.includes(albumId));
+
+    // 4. Determine albums to insert (selected but not linked)
+    const albumsToInsert = selectedAlbumIds.filter(albumId => !existingAlbumIds.includes(albumId));
+
+    // 5. Delete unselected album links
+    if (albumsToDelete.length > 0) {
+      const { error: deleteError } = await supabase
         .from('album_song')
         .delete()
-        .eq('songid', id);
+        .eq('songid', id)
+        .in('albumid', albumsToDelete);
 
-      if (unlinkError) throw unlinkError;
+      if (deleteError) throw deleteError;
+    }
 
-      // Insert new links
-      const newLinks = albums.map((albumId) => ({
+    // 6. Insert newly selected album links
+    if (albumsToInsert.length > 0) {
+      const newLinks = albumsToInsert.map(albumId => ({
         songid: id,
-        albumid: albumId,
+        albumid: Number(albumId), // convert back to number if needed
       }));
 
-      const { error: linkError } = await supabase
-        .from('album_song')
-        .insert(newLinks);
-      if (linkError) throw linkError;
+      const { error: insertError } = await supabase.from('album_song').insert(newLinks);
+      if (insertError) throw insertError;
     }
 
     return { success: true };

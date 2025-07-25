@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUserById, sendPasswordRecoveryEmail } from '@/utils/user';
+import { fetchUserById, sendPasswordReset } from '@/utils/user';
 import { useRouter } from 'next/navigation';
 
 export default function UserDetailPage() {
@@ -31,7 +31,7 @@ export default function UserDetailPage() {
         setLoadingSend(true);
         setSendMessage(null);
         try {
-            const res = await sendPasswordRecoveryEmail(user?.email);
+            const res = await sendPasswordReset(user?.email);
 
             console.log('sendPasswo rdRecoveryEmail response:', res);
             // if (!res.ok) {

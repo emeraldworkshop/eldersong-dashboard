@@ -106,7 +106,7 @@ export default function EditUserPage() {
     return (
         <main className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-xl mx-auto bg-white shadow rounded p-6">
-                <h1 className="text-2xl font-semibold mb-6">Edit User</h1>
+                <h1 className="text-black text-2xl font-semibold mb-6">Edit User</h1>
 
                 {error && (
                     <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
@@ -174,7 +174,7 @@ export default function EditUserPage() {
                     <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                         <button
                             type="button"
-                            onClick={() => router.push('/users')}
+                            onClick={() => router.back()}
                             disabled={saving}
                             className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition disabled:opacity-50"
                         >

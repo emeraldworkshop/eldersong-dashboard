@@ -2,7 +2,8 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllUsers } from '@/utils/user';
+import { fetchAllUsers, deleteUserById } from '@/utils/user';
+import { FaTrash, FaPen } from 'react-icons/fa';
 
 export default function UsersPage() {
     const router = useRouter();
@@ -18,6 +19,24 @@ export default function UsersPage() {
             setUsers(res.users);
         })();
     }, []);
+
+    // Function to handle user deletion
+    const handleDeleteUser = async (userId: string) => {
+        const confirmed = confirm('Are you sure you want to delete this user?');
+        if (!confirmed) return;
+
+        try {
+            const result = await deleteUserById(userId);
+            if (result.success) {
+                alert('User deleted successfully!');
+                // Refresh your user list here
+            } else {
+                alert('Failed to delete user: ' + result.message);
+            }
+        } catch (error: any) {
+            alert('Error deleting user: ' + error.message);
+        }
+    };
 
     const renderMetadata = (metadata: any) => {
         if (!metadata || Object.keys(metadata).length === 0) return '-';
@@ -54,6 +73,9 @@ export default function UsersPage() {
                                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                     Metadata
                                 </th>
+                                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
 
@@ -61,7 +83,7 @@ export default function UsersPage() {
                             {users.length === 0 && (
                                 <tr>
                                     <td
-                                        colSpan={4}
+                                        colSpan={5}
                                         className="px-6 py-4 text-center text-gray-400 italic bg-white"
                                     >
                                         No users found.
@@ -72,20 +94,32 @@ export default function UsersPage() {
                             {users.map((user) => (
                                 <tr
                                     key={user.id}
-                                    onClick={() => router.push(`/users/${user.id}`)}
-                                    className="cursor-pointer bg-white hover:bg-gray-100 transition duration-200"
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            router.push(`/users/${user.id}`);
-                                        }
-                                    }}
+                                    className="bg-white hover:bg-gray-100 transition duration-200"
                                 >
-                                    <td className="px-6 py-4 font-mono text-sm text-gray-900 max-w-[200px] overflow-hidden truncate">
+                                    <td
+                                        className="px-6 py-4 font-mono text-sm text-gray-900 max-w-[200px] overflow-hidden truncate cursor-pointer"
+                                        onClick={() => router.push(`/users/${user.id}`)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                router.push(`/users/${user.id}`);
+                                            }
+                                        }}
+                                    >
                                         {user.id}
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900 font-medium truncate">
+                                    <td
+                                        className="px-6 py-4 text-sm text-gray-900 font-medium truncate cursor-pointer"
+                                        onClick={() => router.push(`/users/${user.id}`)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                router.push(`/users/${user.id}`);
+                                            }
+                                        }}
+                                    >
                                         {user.email || '-'}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700 truncate">
@@ -99,8 +133,30 @@ export default function UsersPage() {
                                             })
                                             : '-'}
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-700">
+                                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
                                         {renderMetadata(user.user_metadata)}
+                                    </td>
+                                    <td className="px-6 py-4 text-center text-sm space-x-16">
+                                        {/* Edit Button */}
+                                        <button
+                                            onClick={() => router.push(`/users/${user.id}/edit`)}
+                                            className="text-gray-500 hover:text-blue-800"
+                                            aria-label={`Edit user ${user.email}`}
+                                            title="Edit User"
+                                        >
+                                            <FaPen size={16} />
+                                        </button>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() => handleDeleteUser(user.id)}
+                                            className="text-gray-500
+                                                hover:text-red-800"
+                                            aria-label={`Delete user ${user.email}`}
+                                            title="Delete User"
+                                        >
+                                            <FaTrash size={16} />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

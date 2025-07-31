@@ -74,16 +74,36 @@ export async function updateUserById(
 /**
  * Delete user by ID
  */
-export async function deleteUserById(id: string) {
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
-  if (error) {
-    console.error('deleteUserById error:', error);
-    throw error;
+export async function deleteUserById(userId: string) {
+  try {
+    // Delete from favourites table
+    let { error: favError } = await supabaseAdmin
+      .from('favorites')
+      .delete()
+      .eq('user_id', userId);
+
+    if (favError) throw favError;
+
+    // Delete from users table (your app users table)
+    let { error: usersError } = await supabaseAdmin
+      .from('users')
+      .delete()
+      .eq('id', userId);
+
+    if (usersError) throw usersError;
+
+    // Delete user from Supabase Auth
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (authError) throw authError;
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Delete user error:', error);
+    return { success: false, message: error.message };
   }
-
-  return true;
 }
+
 
 export async function sendPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
   try {

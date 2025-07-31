@@ -17,10 +17,23 @@ export const fetchUserById = async (id: any) => {
  * Create a new user with email and random temp password (secure)
  * You can send password reset link for password setup later
  */
-export async function addNewUser({ email, fname, lname, org, email_confirm = false }:{email: string, fname: string, lname: string, org: string, email_confirm?: boolean}) {
-  // You may want to generate a temporary random password (or let user use magic login)
+export async function addNewUser({
+  email,
+  fname,
+  lname,
+  org,
+  email_confirm = false,
+}: {
+  email: string;
+  fname: string;
+  lname: string;
+  org: string;
+  email_confirm?: boolean;
+}) {
+  // Generate a temporary random password
   const tempPassword = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
 
+  // 1. Create user via Supabase Admin API
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password: tempPassword,
@@ -36,15 +49,35 @@ export async function addNewUser({ email, fname, lname, org, email_confirm = fal
     throw new Error(error.message);
   }
 
-  // Optionally generate password recovery link:
+  // 2. Optionally generate password recovery link
   await supabaseAdmin.auth.admin.generateLink({
     type: 'recovery',
     email,
   });
 
+  // 3. If email is verified (email_confirm === true), insert row in 'users' table
+  if (email_confirm) {
+    const { error: insertError } = await supabaseAdmin.from('users').insert({
+      id: data.user.id, // User ID from auth
+      email: data.user.email, // User email
+      created_at: new Date().toISOString(), // Current time in ISO string
+    });
+
+    if (insertError) {
+      // Optionally decide what to do here: throw or log error
+      console.error(
+        'Error inserting user into users table',
+        insertError.message
+      );
+      throw new Error(
+        'User created but failed to insert into users table: ' +
+          insertError.message
+      );
+    }
+  }
+
   return data.user;
 }
-
 
 /**
  * Update a user's profile info and/or email
@@ -63,7 +96,6 @@ export async function updateUserById(
 
   console.log('updateUserById updates:', updates);
   console.log('This fucntion is called with id:', id);
-  
 
   const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
     id,
@@ -101,7 +133,9 @@ export async function deleteUserById(userId: string) {
     if (usersError) throw usersError;
 
     // Delete user from Supabase Auth
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(
+      userId
+    );
     if (authError) throw authError;
 
     return { success: true };
@@ -111,26 +145,24 @@ export async function deleteUserById(userId: string) {
   }
 }
 
-
-export async function sendPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+export async function sendPasswordReset(email: string) {
   try {
+    // Use Supabase Admin API directly
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email,
     });
 
-    console.log('sendPasswordReset data:', data);
-
     if (error) {
-      return { success: false, message: error.message };
+      alert('Failed to send password reset: ' + error.message);
+      return;
     }
 
-    // You may need to send the recovery link manually if Supabase does not send it automatically
-    // For most setups, Supabase will send the email if SMTP is configured
+    return data; // Contains action_link if needed
 
-    return { success: true, message: 'Password reset email sent' };
-  } catch (err: any) {
-    return { success: false, message: err.message };
+    alert('Password reset email sent successfully!');
+    // Optionally, data.action_link holds the reset link. If Supabase SMTP is configured, email is sent automatically.
+  } catch (error: any) {
+    alert('Error: ' + error.message);
   }
 }
-

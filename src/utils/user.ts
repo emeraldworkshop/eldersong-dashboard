@@ -17,27 +17,34 @@ export const fetchUserById = async (id: any) => {
  * Create a new user with email and random temp password (secure)
  * You can send password reset link for password setup later
  */
-export async function createUserWithEmail(
-  email: string,
-  metadata: Record<string, any> = {}
-) {
-  // Generate a random temporary password if you want (can also leave blank => user uses magic link)
+export async function addNewUser({ email, fname, lname, org, email_confirm = false }:{email: string, fname: string, lname: string, org: string, email_confirm?: boolean}) {
+  // You may want to generate a temporary random password (or let user use magic login)
   const tempPassword = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
 
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password: tempPassword,
-    email_confirm: true, // email confirmed, or false if you want user to confirm email
-    user_metadata: metadata,
+    email_confirm,
+    user_metadata: {
+      fname,
+      lname,
+      org,
+    },
   });
 
   if (error) {
-    console.error('createUserWithEmail error:', error);
-    throw error;
+    throw new Error(error.message);
   }
 
-  return { user: data.user, tempPassword };
+  // Optionally generate password recovery link:
+  await supabaseAdmin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
+  });
+
+  return data.user;
 }
+
 
 /**
  * Update a user's profile info and/or email

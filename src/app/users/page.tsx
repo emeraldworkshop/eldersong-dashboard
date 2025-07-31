@@ -55,7 +55,16 @@ export default function UsersPage() {
     return (
         <main className="min-h-screen bg-white p-8">
             <section className="max-w-6xl mx-auto">
-                <h1 className="text-4xl font-extrabold mb-8 text-gray-900">All Users</h1>
+                <div className=" mx-auto flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800">All Users</h1>
+                    <button
+                        onClick={() => router.push('/addUser')}
+                        type="button"
+                        className="mt-4 md:mt-0 bg-blue-600 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition"
+                    >
+                        ➕ Add New User
+                    </button>
+                </div>
 
                 <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table className="min-w-full divide-y divide-gray-200 bg-gray-50">

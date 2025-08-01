@@ -134,7 +134,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     });
     if (error) {
       if (error.message.toLowerCase() == 'email not confirmed') {
-        const done = await resendVerificationLink(email);
+        await resendVerificationLink(email);
         if (!fromVerifyScreen) {
           showAlert(
             'info',

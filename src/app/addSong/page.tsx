@@ -21,7 +21,7 @@ export default function AddSong() {
         const fetchAlbums = async () => {
             const { data, error } = await supabase.from('albums').select('id, name');
             if (error) console.error('Error fetching albums:', error);
-            else setAlbums(data || []);
+            else setAlbums(data);
         };
         fetchAlbums();
     }, []);

@@ -12,7 +12,7 @@ export default function EditSongPage() {
 
     const [title, setTitle] = useState('');
     const [artist, setArtist] = useState('');
-    const [albums, setAlbums] = useState<[]>([]);
+    const [albums, setAlbums] = useState([]);
     const [selectedAlbumIds, setSelectedAlbumIds] = useState<string[]>([]);
     const [songId, setSongId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);

@@ -7,7 +7,7 @@ import { slugify } from '@/utils/createSlug';
 
 export default function AlbumsPage() {
     const router = useRouter();
-    const [albums, setAllAlbums] = useState<[]>([]);
+    const [albums, setAllAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

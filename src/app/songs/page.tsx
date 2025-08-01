@@ -9,7 +9,7 @@ import { deleteSong } from '@/utils/song';
 
 export default function AllSongsPage() {
   const router = useRouter();
-  const [songs, setSongs] = useState<[]>([]);
+  const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleDelete = async (song) => {

@@ -13,8 +13,8 @@ export default function AddSong() {
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
     const [artist, setArtist] = useState('');
-    const [albums, setAlbums] = useState<[]>([]);
-    const [selectedAlbumIds, setSelectedAlbumIds] = useState<string[]>([]);
+    const [albums, setAlbums] = useState([]);
+    const [selectedAlbumIds, setSelectedAlbumIds] = useState([]);
 
     // Fetch albums
     useEffect(() => {

@@ -7,7 +7,7 @@ import { FaTrash, FaPen } from 'react-icons/fa';
 
 export default function UsersPage() {
     const router = useRouter();
-    const [users, setUsers] = React.useState<[]>([]);
+    const [users, setUsers] = React.useState([]);
 
     useEffect(() => {
         (async () => {

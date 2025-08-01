@@ -11,7 +11,7 @@ export default function AlbumDetailPage() {
     const params = useParams();
     const router = useRouter();
 
-    const [album, setAlbum] = useState<any>(null);
+    const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
     const [albumId, setAlbumId] = useState<number | null>(null);
 
@@ -79,11 +79,11 @@ export default function AlbumDetailPage() {
         );
     }
 
-    const songs = album.album_song ? album.album_song.map((songRel: any) => songRel.songs) : [];
+    const songs = album.album_song ? album.album_song.map((songRel) => songRel.songs) : [];
     const albumSlug = `${slugify(album.name)}-${album.id}`;
 
     // Format songs data for SongReorder (ensure id is string)
-    const reorderSongs = songs.map((song: any) => ({
+    const reorderSongs = songs.map((song) => ({
         id: song.id.toString(),
         title: song.title || '',
         artist: song.artist,

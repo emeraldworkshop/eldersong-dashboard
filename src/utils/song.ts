@@ -151,7 +151,7 @@ export async function updateSong({
 }: UpdateSongOptions) {
   try {
     // 1. Update title and artist if provided
-    const updates: Record<string, any> = {};
+    const updates = {};
     if (title) updates.title = title;
     if (artist) updates.artist = artist;
 

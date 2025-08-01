@@ -4,11 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchAllAlbums } from '@/services/musicService';
 import { slugify } from '@/utils/createSlug';
-import { log } from 'console';
 
 export default function AlbumsPage() {
     const router = useRouter();
-    const [albums, setAllAlbums] = useState<any[]>([]);
+    const [albums, setAllAlbums] = useState<[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

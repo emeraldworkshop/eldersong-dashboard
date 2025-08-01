@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { addSong } from '@/utils/song';
-import { log } from 'console';
 
 
 export default function AddSong() {
@@ -14,7 +13,7 @@ export default function AddSong() {
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
     const [artist, setArtist] = useState('');
-    const [albums, setAlbums] = useState<any[]>([]);
+    const [albums, setAlbums] = useState<[]>([]);
     const [selectedAlbumIds, setSelectedAlbumIds] = useState<string[]>([]);
 
     // Fetch albums
@@ -33,7 +32,7 @@ export default function AddSong() {
         );
     };
 
-    const handleUpload = async (e: any) => {
+    const handleUpload = async (e) => {
         e.preventDefault();
 
         if (!songFile || !coverFile) {

@@ -1,12 +1,11 @@
 'use client';
 
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { updateAlbum, AlbumPayload } from '@/utils/album';
+import { updateAlbum } from '@/utils/album';
 import { supabase } from '@/lib/supabase';
 
 export default function EditAlbum() {
-    const router = useRouter();
     const params = useParams();
     const [albumId, setAlbumId] = useState<number | null>(null);
     const [name, setName] = useState('');

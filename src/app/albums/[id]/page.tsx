@@ -4,14 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchAlbumById } from '@/services/musicService';
 import { deleteAlbumById } from '@/utils/album';
-import SongCardList from '@/components/SongCardList';
 import { slugify } from '@/utils/createSlug';
+import SongReorder from '@/components/SongReorder';
 
 export default function AlbumDetailPage() {
     const params = useParams();
     const router = useRouter();
 
-    const [album, setAlbum] = useState(null);
+    const [album, setAlbum] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [albumId, setAlbumId] = useState<number | null>(null);
 
@@ -57,7 +57,6 @@ export default function AlbumDetailPage() {
 
         if (result.success) {
             alert(`✅ Album successfully deleted: ${result.message}`);
-            // Redirect to albums list
             router.push('/albums');
         } else {
             alert(`❌ Failed to delete: ${result.message}`);
@@ -80,8 +79,16 @@ export default function AlbumDetailPage() {
         );
     }
 
-    const songs = album.album_song ? album.album_song.map(songRel => songRel.songs) : [];
+    const songs = album.album_song ? album.album_song.map((songRel: any) => songRel.songs) : [];
     const albumSlug = `${slugify(album.name)}-${album.id}`;
+
+    // Format songs data for SongReorder (ensure id is string)
+    const reorderSongs = songs.map((song: any) => ({
+        id: song.id.toString(),
+        title: song.title || '',
+        artist: song.artist,
+        coverUrl: song.coverUrl || song.cover_path || null,
+    }));
 
     return (
         <main className="min-h-screen bg-gray-100 py-10 px-4">
@@ -105,7 +112,6 @@ export default function AlbumDetailPage() {
                         </p>
 
                         <div className="flex gap-3 flex-wrap">
-                            {/* Back */}
                             <button
                                 className="bg-gray-300 text-gray-700 px-4 py-1.5 rounded hover:bg-gray-400 text-sm font-semibold transition"
                                 onClick={() => router.back()}
@@ -113,7 +119,6 @@ export default function AlbumDetailPage() {
                                 ← Back to Albums
                             </button>
 
-                            {/* Edit */}
                             <button
                                 className="bg-blue-600 text-white px-5 py-1.5 rounded hover:bg-blue-700 text-sm font-semibold transition"
                                 onClick={() => router.push(`/albums/${albumSlug}/edit`)}
@@ -121,7 +126,6 @@ export default function AlbumDetailPage() {
                                 ✏️ Edit Album
                             </button>
 
-                            {/* 🔴 Delete Button */}
                             <button
                                 className="bg-red-600 text-white px-5 py-1.5 rounded hover:bg-red-700 text-sm font-semibold transition"
                                 onClick={handleDelete}
@@ -132,7 +136,7 @@ export default function AlbumDetailPage() {
                     </div>
                 </div>
 
-                {/* Songs List */}
+                {/* Songs List with Reorder */}
                 <section className="px-8 pb-8">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Songs in this album</h2>
                     {songs.length === 0 ? (
@@ -140,18 +144,14 @@ export default function AlbumDetailPage() {
                             No songs are linked to this album yet.
                         </div>
                     ) : (
-                        <ul className="grid gap-4">
-                            {songs.map((song) => (
-                                <SongCardList
-                                    key={song.id}
-                                    song={song}
-                                    onPress={() =>
-                                        router.push(`/songs/${song.title.replace(/\s+/g, '-')}-${song.id}`)
-                                    }
-                                    type="default"
-                                />
-                            ))}
-                        </ul>
+                        <SongReorder
+                            songs={reorderSongs}
+                            onOrderChange={(newOrder) => {
+                                // Current: just logs new order for demo
+                                console.log('New song order:', newOrder.map((s) => s.title));
+                                // TODO: call your API to update order in DB here
+                            }}
+                        />
                     )}
                 </section>
             </div>

@@ -55,6 +55,8 @@ export async function addNewUser({
     email,
   });
 
+  await supabaseAdmin.auth.resetPasswordForEmail(email);
+
   // 3. If email is verified (email_confirm === true), insert row in 'users' table
   if (email_confirm) {
     const { error: insertError } = await supabaseAdmin.from('users').insert({

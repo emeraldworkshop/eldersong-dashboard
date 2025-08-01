@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 export default function UserDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState(null);
     const [loadingSend, setLoadingSend] = useState(false);
     const [sendMessage, setSendMessage] = useState<string | null>(null);
     const userId = params?.id as string;
@@ -40,7 +40,7 @@ export default function UserDetailPage() {
             // }
 
             setSendMessage('✅ Password reset email sent successfully.');
-        } catch (error: any) {
+        } catch (error) {
             setSendMessage(`❌ Error: ${error.message}`);
         } finally {
             setLoadingSend(false);

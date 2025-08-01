@@ -9,10 +9,10 @@ import { deleteSong } from '@/utils/song';
 
 export default function AllSongsPage() {
   const router = useRouter();
-  const [songs, setSongs] = useState<any[]>([]);
+  const [songs, setSongs] = useState<[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleDelete = async (song: any) => {
+  const handleDelete = async (song) => {
     const confirmDelete = confirm(`Are you sure you want to delete "${song.title}"?`);
     if (!confirmDelete) return;
 

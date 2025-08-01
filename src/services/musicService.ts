@@ -101,7 +101,7 @@ export const getFavoriteSongs = async (
 };
 
 
-export const fetchAlbumById = async (albumId: any): Promise<Album | null> => {
+export const fetchAlbumById = async (albumId): Promise<Album | null> => {
   try {
     const { data, error } = await supabase
       .from('albums')
@@ -157,7 +157,7 @@ export const fetchAlbumById = async (albumId: any): Promise<Album | null> => {
   }
 };
 
-export const fetchSongById = async (songId: any): Promise<Song | null> => {
+export const fetchSongById = async (songId): Promise<Song | null> => {
   try {
     const { data, error } = await supabase
       .from('songs')

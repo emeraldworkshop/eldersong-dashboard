@@ -67,7 +67,7 @@ export async function updateAlbum(
     id: number,
     payload: AlbumPayload
 ): Promise<AlbumMutationResult> {
-    let updateData: any = {
+    let updateData = {
         name: payload.name,
         description: payload.description,
     };
@@ -99,7 +99,6 @@ export async function deleteAlbumById(
     albumId: number
 ): Promise<{ success: boolean; message: string }> {
     try {
-        // 1. Fetch album to get cover image path (if any)
         const { data: album, error: fetchError } = await supabase
             .from('albums')
             .select('id, "cover-image"')

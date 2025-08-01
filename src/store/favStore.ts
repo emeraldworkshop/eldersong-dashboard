@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
-import { Song } from '@/types/song';
 
 type FavStore = {
   favoriteSongIds: number[]; // Assuming song ID is bigint

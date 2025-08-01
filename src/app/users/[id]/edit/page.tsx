@@ -4,16 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { fetchUserById, updateUserById } from '@/utils/user';
 
-type UserProfile = {
-    id: string;
-    email: string;
-    user_metadata?: {
-        first_name?: string;
-        last_name?: string;
-        organisation?: string;
-    };
-};
-
 export default function EditUserPage() {
     const { id: userId } = useParams();
     const router = useRouter();

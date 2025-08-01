@@ -117,7 +117,7 @@ export async function updateUserById(
 export async function deleteUserById(userId: string) {
   try {
     // Delete from favourites table
-    let { error: favError } = await supabaseAdmin
+    const { error: favError } = await supabaseAdmin
       .from('favorites')
       .delete()
       .eq('user_id', userId);
@@ -125,7 +125,7 @@ export async function deleteUserById(userId: string) {
     if (favError) throw favError;
 
     // Delete from users table (your app users table)
-    let { error: usersError } = await supabaseAdmin
+    const { error: usersError } = await supabaseAdmin
       .from('users')
       .delete()
       .eq('id', userId);

@@ -1,6 +1,6 @@
 // components/AlertMessage.tsx
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAlertStore } from '@/store/alertStore';
 

@@ -67,7 +67,7 @@ export async function updateAlbum(
     id: number,
     payload: AlbumPayload
 ): Promise<AlbumMutationResult> {
-    let updateData = {
+    const updateData = {
         name: payload.name,
         description: payload.description,
     };

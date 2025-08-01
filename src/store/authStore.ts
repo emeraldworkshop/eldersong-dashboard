@@ -12,8 +12,6 @@ import { useFavStore } from './favStore';
 const { setLoading, showAlert } = useAlertStore.getState();
 const { fetchFavorites } = useFavStore.getState();
 
-const redirectTo = makeRedirectUri();
-
 type AuthStore = {
   user;
 
@@ -77,7 +75,7 @@ const addUserToTableIfNeeded = async (user) => {
 //THIS FUCNTION IS USED TO RESEND THE VEIRIFCATION CODE
 
 export const resendVerificationLink = async (email: string) => {
-  const { data, error } = await supabase.auth.signInWithOtp({ email });
+  const {} = await supabase.auth.signInWithOtp({ email });
   return true;
 };
 
@@ -121,6 +119,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             org,
           },
         });
+
+        return data;
       }
       setLoading(false);
     }
@@ -295,10 +295,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const { user } = get();
     if (!user) return;
 
-    const { id } = user;
     const [fname, lname = ''] = (updates.name || '').split(' ');
 
-    const { data, error } = await supabase.auth.updateUser({
+    const {  error } = await supabase.auth.updateUser({
       data: {
         fname,
         lname,

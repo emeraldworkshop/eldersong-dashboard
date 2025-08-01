@@ -8,7 +8,7 @@ export default function SongDetailPage() {
   const params = useParams();
   const router = useRouter();
 
-  const [song, setSong] = useState<any>(null);
+  const [song, setSong] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

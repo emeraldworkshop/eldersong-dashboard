@@ -7,7 +7,7 @@ import { FaTrash, FaPen } from 'react-icons/fa';
 
 export default function UsersPage() {
     const router = useRouter();
-    const [users, setUsers] = React.useState<any[]>([]);
+    const [users, setUsers] = React.useState<[]>([]);
 
     useEffect(() => {
         (async () => {
@@ -33,12 +33,12 @@ export default function UsersPage() {
             } else {
                 alert('Failed to delete user: ' + result.message);
             }
-        } catch (error: any) {
+        } catch (error) {
             alert('Error deleting user: ' + error.message);
         }
     };
 
-    const renderMetadata = (metadata: any) => {
+    const renderMetadata = (metadata) => {
         if (!metadata || Object.keys(metadata).length === 0) return '-';
         const jsonStr = JSON.stringify(metadata, null, 2);
         const truncated = jsonStr.length > 80 ? jsonStr.substring(0, 80) + '...' : jsonStr;

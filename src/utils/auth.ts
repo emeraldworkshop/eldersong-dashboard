@@ -9,7 +9,7 @@ export async function login(email: string, password: string) {
   return data;
 }
 
-export function storeSession(session: any, ttlSeconds = 3600) {
+export function storeSession(session, ttlSeconds = 3600) {
   const expiresAt = Date.now() + ttlSeconds * 1000;
   localStorage.setItem(SESSION_KEY, JSON.stringify({ ...session, expiresAt }));
 }

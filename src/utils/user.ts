@@ -7,7 +7,7 @@ export const fetchAllUsers = async () => {
   return data;
 };
 
-export const fetchUserById = async (id: any) => {
+export const fetchUserById = async (id) => {
   const { data, error } = await supabaseAdmin.auth.admin.getUserById(id);
   if (error) throw error;
   return data;
@@ -84,13 +84,13 @@ export async function addNewUser({
  * metadata is an object of changes, e.g. { first_name: 'John' }
  */
 export async function updateUserById(
-  id: any,
+  id,
   {
     email,
     user_metadata,
-  }: { email?: string; user_metadata?: Record<string, any> }
+  }: { email?: string; user_metadata }
 ) {
-  const updates: Record<string, any> = {};
+  const updates = {};
   if (email) updates.email = email;
   if (user_metadata) updates.user_metadata = user_metadata;
 
@@ -139,7 +139,7 @@ export async function deleteUserById(userId: string) {
     if (authError) throw authError;
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Delete user error:', error);
     return { success: false, message: error.message };
   }
@@ -162,7 +162,7 @@ export async function sendPasswordReset(email: string) {
 
     alert('Password reset email sent successfully!');
     // Optionally, data.action_link holds the reset link. If Supabase SMTP is configured, email is sent automatically.
-  } catch (error: any) {
+  } catch (error) {
     alert('Error: ' + error.message);
   }
 }

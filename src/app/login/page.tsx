@@ -32,7 +32,7 @@ export default function LoginPage() {
             storeSession(data.session || data, 3600); // 1 hour session
             setMessage('Login successful!');
             router.push('/'); // Redirect to home after login
-        } catch (error: any) {
+        } catch (error) {
             setMessage(error.message || 'Login failed');
         } finally {
             setLoading(false);

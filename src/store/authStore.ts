@@ -15,7 +15,7 @@ const { fetchFavorites } = useFavStore.getState();
 const redirectTo = makeRedirectUri();
 
 type AuthStore = {
-  user: any;
+  user;
 
   signUp: (
     email: string,
@@ -51,13 +51,13 @@ export const checkIfUserExists = async (email: string) => {
 };
 
 //THIS IS A FUCNTION TO CHECK IF USER HASVERIFIED THEIR EMAIL
-export const checkIfEmailIsVerified = async (data: any) => {
+export const checkIfEmailIsVerified = async (data) => {
   console.log('data>> checing email verification', data);
   return data?.user?.user_metadata?.email_verified;
 };
 
 //THIS FUCNTION IS TO ADD USER TO THE USERS TABEL AFTER THEY VERIFY THEIR EMAIL
-const addUserToTableIfNeeded = async (user: any) => {
+const addUserToTableIfNeeded = async (user) => {
   const { data: existing } = await supabase
     .from('users')
     .select('id')
@@ -273,7 +273,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           console.error('WebBrowser result type:', result.type, result);
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error('Caught error during Google sign-in:', e);
       showAlert(
         'error',

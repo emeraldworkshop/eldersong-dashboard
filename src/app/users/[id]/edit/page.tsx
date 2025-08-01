@@ -54,7 +54,7 @@ export default function EditUserPage() {
                 setFirstName(user?.user_metadata?.fname ?? '');
                 setLastName(user?.user_metadata?.lname ?? '');
                 setOrganisation(user?.user_metadata?.org ?? '');
-            } catch (err: any) {
+            } catch (err) {
                 setError(err.message ?? 'Error fetching user data');
             } finally {
                 setLoading(false);
@@ -88,7 +88,7 @@ export default function EditUserPage() {
             );
 
             router.back();
-        } catch (err: any) {
+        } catch (err) {
             setError(err.message || 'Error updating user');
         } finally {
             setSaving(false);

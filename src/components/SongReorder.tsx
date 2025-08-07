@@ -19,6 +19,10 @@ interface Props {
 }
 
 export default function SongReorder({ songs: initialSongs, onOrderChange }: Props) {
+
+
+    console.log({initialSongs})
+    console.log({onOrderChange})
     const [songs, setSongs] = useState<Song[]>(initialSongs);
     const router = useRouter();
 

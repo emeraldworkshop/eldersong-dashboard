@@ -51,28 +51,30 @@ export default function SongReorder({ songs: initialSongs, onOrderChange }: Prop
                         className="grid gap-4"
                     >
                         {songs.map((song, index) => (
-                            <Draggable key={song.id} draggableId={song.id} index={index}>
-                                {(provided, snapshot) => (
-                                    <li
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={{
-                                            userSelect: 'none',
-                                            background: snapshot.isDragging ? '#e0f2fe' : 'white',
-                                            ...provided.draggableProps.style,
-                                        }}
-                                    >
-                                        <SongCardList
-                                            song={song}
-                                            onPress={() =>
-                                                router.push(`/songs/${song.title.replace(/\s+/g, '-')}-${song.id}`)
-                                            }
-                                            type="default"
-                                        />
-                                    </li>
-                                )}
-                            </Draggable>
+                            <div className='h-21'>
+                                <Draggable key={song.id} draggableId={song.id} index={index}>
+                                    {(provided, snapshot) => (
+                                        <li
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            style={{
+                                                userSelect: 'none',
+                                                background: snapshot.isDragging ? '#e0f2fe' : 'white',
+                                                ...provided.draggableProps.style,
+                                            }}
+                                        >
+                                            <SongCardList
+                                                song={song}
+                                                onPress={() =>
+                                                    router.push(`/songs/${song.title.replace(/\s+/g, '-')}-${song.id}`)
+                                                }
+                                                type="default"
+                                            />
+                                        </li>
+                                    )}
+                                </Draggable>
+                            </div>
                         ))}
                         {provided.placeholder}
                     </ul>

@@ -6,6 +6,7 @@ import { fetchAlbumById } from '@/services/musicService';
 import { deleteAlbumById } from '@/utils/album';
 import { slugify } from '@/utils/createSlug';
 import SongReorder from '@/components/SongReorder';
+import { supabase } from '@/lib/supabase';
 
 export default function AlbumDetailPage() {
     const params = useParams();
@@ -14,6 +15,7 @@ export default function AlbumDetailPage() {
     const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
     const [albumId, setAlbumId] = useState<number | null>(null);
+    const [songs, setSongs] = useState([]);
 
     useEffect(() => {
         (async () => {
@@ -47,6 +49,26 @@ export default function AlbumDetailPage() {
         })();
     }, [params]);
 
+    useEffect(() => {
+        if (!album) return;
+
+        const songsWithOrder = album.album_song.map((entry) => {
+            const song = entry.songs;
+            return {
+                id: song.id.toString(),
+                title: song.title,
+                artist: song.artist,
+                coverUrl: song.coverUrl || song.cover_path || null,
+                order_index: entry.order_index ?? 0,
+            };
+        });
+
+        // Sort by order_index ascending
+        songsWithOrder.sort((a, b) => a.order_index - b.order_index);
+
+        setSongs(songsWithOrder);
+    }, [album]);
+
     const handleDelete = async () => {
         if (!albumId || !album?.name) return;
 
@@ -79,7 +101,28 @@ export default function AlbumDetailPage() {
         );
     }
 
-    const songs = album.album_song ? album.album_song.map((songRel) => songRel.songs) : [];
+    const updateSongOrder = async (newOrder) => {
+        setSongs(newOrder);
+
+        if (!albumId) return;
+
+        try {
+            // Update album_song order_index for each song
+            await Promise.all(
+                newOrder.map(({ id }, index) =>
+                    supabase
+                        .from('album_song')
+                        .update({ order_index: index })
+                        .eq('album_id', albumId)
+                        .eq('song_id', Number(id))
+                )
+            );
+        } catch (error) {
+            console.error('Failed to update song order:', error);
+            alert('Failed to update song order');
+        }
+    };
+
     const albumSlug = `${slugify(album.name)}-${album.id}`;
 
     // Format songs data for SongReorder (ensure id is string)
@@ -144,14 +187,29 @@ export default function AlbumDetailPage() {
                             No songs are linked to this album yet.
                         </div>
                     ) : (
-                        <SongReorder
-                            songs={reorderSongs}
-                            onOrderChange={(newOrder) => {
-                                // Current: just logs new order for demo
-                                console.log('New song order:', newOrder.map((s) => s.title));
-                                // TODO: call your API to update order in DB here
-                            }}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                            {/* Serial numbers column */}
+                            <ul className='grid gap-4'>
+                                {reorderSongs.map((_, idx) => (
+                                    <div
+                                        key={`serial-${idx}`}
+                                        style={{
+                                            // match height of each song row/card
+                                            fontWeight: 'bold',
+                                            color: '#555',
+                                            width: 24, // fixed width for alignment
+                                        }}
+                                        className=' flex h-21 items-center justify-center'
+                                    >
+                                        {idx + 1}
+                                    </div>
+                                ))}
+                            </ul>
+                            <div style={{ flex: 1 }}>
+                                <SongReorder songs={reorderSongs} onOrderChange={updateSongOrder} />
+                            </div>
+                        </div>
+
                     )}
                 </section>
             </div>

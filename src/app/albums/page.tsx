@@ -14,8 +14,6 @@ export default function AlbumsPage() {
         (async () => {
             try {
                 const albumList = await fetchAllAlbums();
-
-                console.log({albumList});
                 
                 setAllAlbums(albumList || []);
             } finally {

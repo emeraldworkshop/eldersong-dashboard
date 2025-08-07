@@ -41,8 +41,8 @@ export const fetchAllAlbums = async (): Promise<Album[]> => {
       id: album.id,
       name: album.name,
       description: album.description,
-      "cover-image": album['cover-image'],
-      "cover_url":getPublicUrl('music-images',album['cover-image']),
+      'cover-image': album['cover-image'],
+      cover_url: getPublicUrl('music-images', album['cover-image']),
       album_song: album.album_song.map((songEntry) => {
         const baseSong = Array.isArray(songEntry.songs)
           ? songEntry.songs[0]
@@ -100,18 +100,19 @@ export const getFavoriteSongs = async (
   };
 };
 
-
 export const fetchAlbumById = async (albumId): Promise<Album | null> => {
   try {
     const { data, error } = await supabase
       .from('albums')
-      .select(`
+      .select(
+        `
         id,
         name,
         description,
         cover-image,
         album_song (
           songid,
+          order_index,
           songs (
             id,
             title,
@@ -120,7 +121,8 @@ export const fetchAlbumById = async (albumId): Promise<Album | null> => {
             image_path
           )
         )
-      `)
+      `
+      )
       .eq('id', albumId)
       .single(); // fetch a single album
 
@@ -130,8 +132,8 @@ export const fetchAlbumById = async (albumId): Promise<Album | null> => {
       id: data.id,
       name: data.name,
       description: data.description,
-      "cover-image": data['cover-image'],
-      "cover_url":getPublicUrl('music-images',data['cover-image']),
+      'cover-image': data['cover-image'],
+      cover_url: getPublicUrl('music-images', data['cover-image']),
       album_song: data.album_song.map((songEntry) => {
         const baseSong = Array.isArray(songEntry.songs)
           ? songEntry.songs[0]
@@ -145,12 +147,16 @@ export const fetchAlbumById = async (albumId): Promise<Album | null> => {
 
         return {
           songid: songEntry.songid,
+          order_index: songEntry.order_index,
           songs: songWithUrls,
         };
       }),
     };
 
+    albumWithUrls.album_song.sort((a, b) => a.order_index - b.order_index);
+
     return albumWithUrls;
+    
   } catch (error) {
     console.error('Error fetching album by ID:', error);
     return null;
@@ -179,4 +185,3 @@ export const fetchSongById = async (songId): Promise<Song | null> => {
     return null;
   }
 };
-

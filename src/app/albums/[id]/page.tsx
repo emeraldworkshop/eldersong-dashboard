@@ -6,6 +6,7 @@ import { fetchAlbumById } from '@/services/musicService';
 import { deleteAlbumById } from '@/utils/album';
 import { slugify } from '@/utils/createSlug';
 import SongReorder from '@/components/SongReorder';
+import { supabase } from '@/lib/supabase';
 
 export default function AlbumDetailPage() {
     const params = useParams();
@@ -14,7 +15,9 @@ export default function AlbumDetailPage() {
     const [album, setAlbum] = useState(null);
     const [loading, setLoading] = useState(true);
     const [albumId, setAlbumId] = useState<number | null>(null);
+    const [songs, setSongs] = useState([]);
 
+    // Fetch album details including album_song with order_index on route param change
     useEffect(() => {
         (async () => {
             const slugParam = params?.id;
@@ -34,8 +37,10 @@ export default function AlbumDetailPage() {
             }
 
             setAlbumId(id);
+            setLoading(true);
 
             try {
+                // Fetch album with songs and their order_index
                 const albumObj = await fetchAlbumById(id);
                 setAlbum(albumObj);
             } catch (err) {
@@ -47,6 +52,28 @@ export default function AlbumDetailPage() {
         })();
     }, [params]);
 
+    // Whenever album updates, extract songs, map and sort by order_index
+    useEffect(() => {
+        if (!album) return;
+
+        const songsWithOrder = album.album_song.map((entry) => {
+            const song = entry.songs;
+            return {
+                id: song.id.toString(),
+                title: song.title,
+                artist: song.artist,
+                coverUrl: song.coverUrl || song.cover_path || null,
+                order_index: entry.order_index ?? 0,
+            };
+        });
+
+        // Sort songs ascending by order_index to respect persisted order
+        songsWithOrder.sort((a, b) => a.order_index - b.order_index);
+
+        setSongs(songsWithOrder);
+    }, [album]);
+
+    // Handler for album deletion with user confirmation
     const handleDelete = async () => {
         if (!albumId || !album?.name) return;
 
@@ -79,10 +106,38 @@ export default function AlbumDetailPage() {
         );
     }
 
-    const songs = album.album_song ? album.album_song.map((songRel) => songRel.songs) : [];
+    // Function called on drag-and-drop reorder, receives new order of songs
+    const updateSongOrder = async (newOrder) => {
+        // Optimistically update local state for immediate UI responsiveness
+        setSongs(newOrder);
+
+        // Debug log to observe new order array
+        console.log({ newOrder });
+
+        // Ensure albumId is valid before updating DB
+        if (!albumId) return;
+
+        try {
+            // Persist the new order_index based on the new song sequence
+            await Promise.all(
+                newOrder.map(({ id }, index) =>
+                    supabase
+                        .from('album_song')
+                        .update({ order_index: index+1 }) // Update position/index in album_song table
+                        .eq('albumid', albumId)
+                        .eq('songid', Number(id))
+                )
+            );
+        } catch (error) {
+            console.error('Failed to update song order:', error);
+            alert('Failed to update song order');
+        }
+    };
+
+    // Construct the album slug for routing (used e.g. for edit page)
     const albumSlug = `${slugify(album.name)}-${album.id}`;
 
-    // Format songs data for SongReorder (ensure id is string)
+    // Format songs for SongReorder component; conversion to string ID to meet DnD key requirements
     const reorderSongs = songs.map((song) => ({
         id: song.id.toString(),
         title: song.title || '',
@@ -104,9 +159,7 @@ export default function AlbumDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                         <h1 className="text-3xl font-bold text-gray-800 truncate">{album.name}</h1>
-                        {album.description && (
-                            <p className="text-gray-600 mt-2 mb-4">{album.description}</p>
-                        )}
+                        {album.description && <p className="text-gray-600 mt-2 mb-4">{album.description}</p>}
                         <p className="text-sm text-gray-500 mb-4">
                             {songs.length} {songs.length === 1 ? 'song' : 'songs'}
                         </p>
@@ -136,22 +189,31 @@ export default function AlbumDetailPage() {
                     </div>
                 </div>
 
-                {/* Songs List with Reorder */}
+                {/* Songs List with Serial Numbers and Reorder */}
                 <section className="px-8 pb-8">
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Songs in this album</h2>
                     {songs.length === 0 ? (
-                        <div className="text-gray-400 text-center py-10">
-                            No songs are linked to this album yet.
-                        </div>
+                        <div className="text-gray-400 text-center py-10">No songs are linked to this album yet.</div>
                     ) : (
-                        <SongReorder
-                            songs={reorderSongs}
-                            onOrderChange={(newOrder) => {
-                                // Current: just logs new order for demo
-                                console.log('New song order:', newOrder.map((s) => s.title));
-                                // TODO: call your API to update order in DB here
-                            }}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                            {/* Static Serial Numbers Column */}
+                            <ul className="grid gap-4">
+                                {reorderSongs.map((_, idx) => (
+                                    <div
+                                        key={`serial-${idx}`}
+                                        className="flex h-21 items-center justify-center font-semibold text-gray-600"
+                                        style={{ width: 24 }}
+                                    >
+                                        {idx + 1}
+                                    </div>
+                                ))}
+                            </ul>
+
+                            {/* Drag-and-Drop Song List */}
+                            <div style={{ flex: 1 }}>
+                                <SongReorder songs={reorderSongs} onOrderChange={updateSongOrder} />
+                            </div>
+                        </div>
                     )}
                 </section>
             </div>

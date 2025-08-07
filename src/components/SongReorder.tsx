@@ -55,7 +55,7 @@ export default function SongReorder({ songs: initialSongs, onOrderChange }: Prop
                         className="grid gap-4"
                     >
                         {songs.map((song, index) => (
-                            <div className='h-21'>
+                            <div className='h-21' key={index}>
                                 <Draggable key={song.id} draggableId={song.id} index={index}>
                                     {(provided, snapshot) => (
                                         <li

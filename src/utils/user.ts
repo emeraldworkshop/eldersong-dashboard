@@ -31,7 +31,7 @@ export async function addNewUser({
   email_confirm?: boolean;
 }) {
   // Generate a temporary random password
-  const tempPassword = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+  const tempPassword ='123456'
 
   // 1. Create user via Supabase Admin API
   const { data, error } = await supabaseAdmin.auth.admin.createUser({

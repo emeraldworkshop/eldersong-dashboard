@@ -12,7 +12,7 @@ export default function AddNewUserPage() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [organisation, setOrganisation] = useState('');
-    const [emailVerified, setEmailVerified] = useState(false);
+    const [emailVerified, setEmailVerified] = useState(true);
 
     // UI state
     const [saving, setSaving] = useState(false);
@@ -112,6 +112,7 @@ export default function AddNewUserPage() {
                         <input
                             id="emailVerified"
                             type="checkbox"
+                            disabled
                             checked={emailVerified}
                             onChange={() => setEmailVerified(!emailVerified)}
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"

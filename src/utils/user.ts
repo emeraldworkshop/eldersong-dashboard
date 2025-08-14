@@ -31,7 +31,7 @@ export async function addNewUser({
   email_confirm?: boolean;
 }) {
   // Generate a temporary random password
-  const tempPassword ='123456'
+  const tempPassword = '123456';
 
   // 1. Create user via Supabase Admin API
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -50,12 +50,9 @@ export async function addNewUser({
   }
 
   // 2. Optionally generate password recovery link
-  await supabaseAdmin.auth.admin.generateLink({
-    type: 'recovery',
-    email,
+  await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://your-app-url.com/reset-password', // this is the page you want the user redirected to after email click
   });
-
-  await supabaseAdmin.auth.resetPasswordForEmail(email);
 
   // 3. If email is verified (email_confirm === true), insert row in 'users' table
   if (email_confirm) {
@@ -87,17 +84,11 @@ export async function addNewUser({
  */
 export async function updateUserById(
   id,
-  {
-    email,
-    user_metadata,
-  }: { email?: string; user_metadata }
+  { email, user_metadata }: { email?: string; user_metadata: any }
 ) {
   const updates = {};
   if (email) updates.email = email;
   if (user_metadata) updates.user_metadata = user_metadata;
-
-  console.log('updateUserById updates:', updates);
-  console.log('This fucntion is called with id:', id);
 
   const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
     id,
@@ -108,6 +99,11 @@ export async function updateUserById(
     console.error('updateUserById error:', error);
     throw error;
   }
+
+  // 2. Optionally generate password recovery link
+  await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://your-app-url.com/reset-password', // this is the page you want the user redirected to after email click
+  });
 
   return data.user;
 }
@@ -149,11 +145,12 @@ export async function deleteUserById(userId: string) {
 
 export async function sendPasswordReset(email: string) {
   try {
-    // Use Supabase Admin API directly
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
+    const { data, error } = await supabaseAdmin.auth.resetPasswordForEmail(
       email,
-    });
+      {
+        redirectTo: 'https://your-app-url.com/reset-password', // this is the page you want the user redirected to after email click
+      }
+    );
 
     if (error) {
       alert('Failed to send password reset: ' + error.message);

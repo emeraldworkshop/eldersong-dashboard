@@ -103,7 +103,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             lname,
             org,
           },
-          emailRedirectTo: 'https://eldersongplus-com--2d9apn4ctm.expo.app/confirm-signup', // Change to your app's verification URL
+          emailRedirectTo: 'https://eldersongplus-com.expo.app/confirm-signup', // Change to your app's verification URL
         },
       });
       if (error) {

@@ -51,8 +51,7 @@ export async function addNewUser({
 
   // 2. Optionally generate password recovery link
   await supabaseAdmin.auth.resetPasswordForEmail(email, {
-    redirectTo:
-      'https://eldersongplus-com--jb6l754n50.expo.app/update-password',
+    redirectTo: 'https://eldersongplus-com.expo.app/update-password',
   });
 
   // 3. If email is verified (email_confirm === true), insert row in 'users' table
@@ -103,8 +102,7 @@ export async function updateUserById(
 
   // 2. Optionally generate password recovery link
   await supabaseAdmin.auth.resetPasswordForEmail(email, {
-    redirectTo:
-      'https://eldersongplus-com--jb6l754n50.expo.app/update-password', // this is the page you want the user redirected to after email click
+    redirectTo: 'https://eldersongplus-com.expo.app/update-password', // this is the page you want the user redirected to after email click
   });
 
   return data.user;
@@ -150,8 +148,7 @@ export async function sendPasswordReset(email: string) {
     const { data, error } = await supabaseAdmin.auth.resetPasswordForEmail(
       email,
       {
-        redirectTo:
-          'https://eldersongplus-com--jb6l754n50.expo.app/update-password',
+        redirectTo: 'https://eldersongplus-com.expo.app/update-password',
       }
     );
 

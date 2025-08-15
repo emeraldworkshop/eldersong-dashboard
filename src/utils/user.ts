@@ -84,7 +84,7 @@ export async function addNewUser({
  */
 export async function updateUserById(
   id,
-  { email, user_metadata }: { email?: string; user_metadata: any }
+  { email, user_metadata }: { email?: string; user_metadata }
 ) {
   const updates = {};
   if (email) updates.email = email;
